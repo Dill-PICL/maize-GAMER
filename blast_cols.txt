@@ -1,0 +1,15 @@
+qseqid
+sseqid
+qlen
+qstart
+qend
+slen
+sstart
+send
+evalue
+bitscore
+score
+length
+pident
+nident
+gaps

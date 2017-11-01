@@ -27,7 +27,7 @@ rm_redundancy(){
 
 if [ -z $@ ]
 then
-	echo "Do you want to remove redundancy on all files in red_data folder?"
+	echo "Do you want to remove redundancy on all files in uniq_data folder?"
 	echo ""
 	read confirm
 	if [ "$confirm" == "Y" ] || [ "$confirm" == "y" ]

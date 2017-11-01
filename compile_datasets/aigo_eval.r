@@ -15,10 +15,6 @@
 source("code/eval_tools.r")
 
 
-if(F){
-    annot_file="red_data/maize_v3.gold.gaf"
-}
-
 go_file="obo/go.obo"
 gold_file="nr_data/maize_v3.gold.gaf"
 
@@ -32,10 +28,6 @@ gold = gold[grep("GRMZM|AC",db_object_symbol)]
 #this line is to remove duplicate annotations with different evidence codes
 gold = gold[,.SD[1],by=list(db_object_symbol,term_accession)]
 setkey(gold,db_object_symbol)
-
-#dataset_eval = eval_red_data(annot_file,gold,go_obo)
-
-#datasets = dir("nr_data",pattern = "*gaf",full.names = T)
 
 datasets = fread("datasets.txt")
 comb_datasets = fread("comb_datasets.txt")
