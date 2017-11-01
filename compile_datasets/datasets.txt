@@ -1,0 +1,7 @@
+Type	dataset	file
+Seq-Simlarity	TAIR	maize_v3.tair.hc.gaf
+Seq-Simlarity	UniProt	maize_v3.uniprot.gaf
+Domain	InterProScan	maize_v3.iprs.gaf
+Mix-Method	Argot2	maize_v3.argot2.gaf
+Mix-Method	FANN-GO	maize_v3.fanngo.gaf
+Mix-Method	PANNZER	maize_v3.pannzer.gaf

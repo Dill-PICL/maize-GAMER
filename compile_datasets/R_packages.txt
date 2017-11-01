@@ -1,0 +1,16 @@
+GO.db
+GOSemSim
+RBGL
+RNeo4j
+data.table
+ggplot2
+graph
+ontologyIndex
+parallel
+reshape2
+scales
+stringr
+tools
+Vennerable
+devtools
+grid
