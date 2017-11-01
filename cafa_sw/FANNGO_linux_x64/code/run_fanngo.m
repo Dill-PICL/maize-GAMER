@@ -1,6 +1,6 @@
 echo off all
 cd code
-[Headers, Sequences] = fastaread('../Zm.AGPv4.pep.filt.fa')
+[Headers, Sequences] = fastaread('../maize_v3.longest.aa.fa')
 PRED=MAIN(Sequences)
 Headers = transpose(Headers)
 Headers = regexprep(Headers, ' .*', '')
