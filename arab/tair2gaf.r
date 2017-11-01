@@ -26,6 +26,3 @@ arab_gaf = arab_gaf[,-c("locus_name"),with=F]
 setcolorder(arab_gaf,gaf_cols)
 
 write_gaf(arab_gaf,"gaf/TAIR10.gaf")
-
-
-arab_gaf
