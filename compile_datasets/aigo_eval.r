@@ -1,17 +1,16 @@
-# library("data.table")
-# library("ggplot2")
-# library("reshape2")
-# library("tools")
-# library("GOSemSim")
-# library("parallel")
-# 
-# 
-# source("code/obo_tools.r")
-# source("code/gen_utils.r")
-# source("code/gaf_tools.r")
-# source("code/get_cons.r")
-# source("code/get_nr_dataset.r")
-# source("code/pos_score.r")
+library("data.table")
+library("ggplot2")
+library("reshape2")
+library("tools")
+library("parallel")
+ 
+ 
+source("code/obo_tools.r")
+source("code/gen_utils.r")
+source("code/gaf_tools.r")
+source("code/get_cons.r")
+source("code/get_nr_dataset.r")
+source("code/pos_score.r")
 source("code/eval_tools.r")
 
 

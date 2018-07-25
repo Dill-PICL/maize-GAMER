@@ -62,6 +62,14 @@ plot_avg_f_score = function(tool_th_fscore,tool){
 
 filter_cafa = function(annot_file,gold_file,go_file,tool_name,num_cores=1){
     
+    if(F){
+        annot_file = "cafa/pannzer-0.0.gaf"
+        gold_file = "nr_data/maize_v3.gold.gaf"
+        go_file = "obo/go.obo"
+        tool_name = "pannzer"
+        num_cores = 4
+    }
+    
     #make output names
     plot_name = paste("plots/annot_score_vs_eval-",tool_name,".png",sep="")
     eval_tbl = paste("tables/maize_v3.aigo_eval.",tool_name,".csv",sep="")
@@ -92,8 +100,10 @@ filter_cafa = function(annot_file,gold_file,go_file,tool_name,num_cores=1){
     breaks=seq(0.0,1.0,0.05)
     
     #run the function to get the evaluation metric for each tool
-    tmp_eval = mclapply(breaks,get_tool_score,tool_data=tool_data,gold_data=gold,go_obo=go_obo)
+    tmp_eval = lapply(breaks,get_tool_score,tool_data=tool_data,gold_data=gold,go_obo=go_obo)
+    #tmp_eval = lapply(breaks,get_tool_score,tool_data=tool_data,gold_data=gold,go_obo=go_obo,mc.cores = mc.cores)
     tool_th_eval = do.call(rbind,tmp_eval)
+    tool_th_eval[db_object_symbol=="AC149810.2_FG004"]
     print(unique(tool_th_eval$th))
     write.table(tool_th_eval,eval_tbl,quote = F,sep = "\t",row.names = F)
     

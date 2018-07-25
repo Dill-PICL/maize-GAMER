@@ -71,6 +71,14 @@ get_annot_sim_score = function(gene,aspect,data,unit_size,idx,unit_perc,tool_dat
         gold_terms = minimal_set(go_obo,unlist(unique(data$term_accession)))
         tool_terms = minimal_set(go_obo,unlist(tool_data_list[[gene]][[aspect]]))
         
+        if(gene=="AC149810.2_FG004"){
+            print(gene)
+            print(gold_terms)
+            print(tool_terms)
+            
+            print(minimal_set(go_obo,unlist(tool_data_list[[gene]][[aspect]])))
+        }
+        
         hPrs = lapply(tool_terms,function(term){
             get_hPr(term,gold_terms,go_obo)
         })
@@ -165,7 +173,8 @@ get_tool_score = function(th,tool_data,gold_data,go_obo,tool_name="data"){
             tool_score_filt = rbind(tool_score_filt,cbind(no_annot,score=0,hPr=0,hRc=0,max_hPr=0,max_hRc=0))
         }
         tool_score_filt = cbind(tool_score_filt,th)
-    }else{
+    }
+    else{
         no_annot_idxs = which(!gold_data$db_object_symbol %in% tool_data_filt$db_object_symbol)
         no_annot = gold_data[no_annot_idxs,.(db_object_symbol,aspect)]
         no_annot = unique(no_annot)

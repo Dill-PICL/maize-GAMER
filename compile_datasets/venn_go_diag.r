@@ -7,6 +7,7 @@ library(grid)
 #biocLite("RBGL")
 library("graph")
 library("RBGL")
+library("scales")
 
 #install_github("js229/Vennerable")
 library(Vennerable)
@@ -16,11 +17,12 @@ source("code/obo_tools.r")
 source("code/gen_utils.r")
 source("code/get_robust.r")
 source("code/get_nr_dataset.r")
+source("code/plot_helper.r")
 
 datasets = fread("datasets.txt")
-comb_datasets = fread("comb_datasets.txt")
+#comb_datasets = fread("comb_datasets.txt")
 
-datasets = rbind(datasets,comb_datasets)
+#datasets = rbind(datasets,comb_datasets)
 #obo="obo/go.obo"
 all_data = apply(datasets,1,function(x){
     infile = paste("nr_data/",x["file"],sep="")
@@ -33,9 +35,7 @@ unique(all_gaf$assigned_by)
 obo_data = check_obo_data("obo/go.obo")
 
 filt_data = merge(all_gaf,datasets,by.x = "assigned_by",by.y="dataset")
-
 filt_data = unique(filt_data[,.(term_accession,Type)])
-
 
 types = unique(filt_data$Type)
 tmp_go_terms = lapply(unique(filt_data$Type),function(x){
@@ -46,11 +46,13 @@ names(tmp_go_terms) = types
 
 cbpallete = c("#FFF2CC","#DEEBF7","#E2F0D9","#fdcdac")
 #vignette("Venn")
-#go_venn <- Venn(tmp_go_terms)
+go_venn <- Venn(tmp_go_terms)
+go_venn
 
 c3 = compute.Venn(go_venn,type="circles",doEuler = F,doWeights = F)
 gp = VennThemes(c3,colourAlgorithm = "signature")
 gp = venn_face_col(gp,cbpallete)
+
 gp$Set$Set1$lwd = 2
 gp$Set$Set2$lwd = 2
 gp$Set$Set3$lwd = 2
@@ -64,11 +66,12 @@ gp$Set$Set1$col = "#000000"
 gp$SetText$Set1$col = "#000000"
 gp$SetText$Set2$col = "#000000"
 gp$SetText$Set3$col = "#000000"
-
 gp$SetText$Set1$fill = "#000000"
 
+c3@IndicatorWeight[,".Weight"] = comma(c3@IndicatorWeight[,".Weight"])
+
 svg("plots/svg/go_gamer_venn.svg",width = 5,height = 5)
-plot(c3,gpList =gp,  show = list(FaceText = "weight", SetLabels = F, Faces = T))
+plot(c3,gpList =gp,  show = list(FaceText = "weight", SetLabels = F, Faces = T, DarkMatter = F))
 dev.off()
 
 
@@ -118,10 +121,11 @@ tmp_go_terms = lapply(unique(filt_data$assigned_by),function(x){
 })
 names(tmp_go_terms) = types
 
+
 #cbpallete = c("#FFF2CC","#DEEBF7","#E2F0D9","#fdcdac")
 cbpallete = c("#d95f02","#1b9e77", "#fdcdac","#e7298a")
 #vignette("Venn")
-#go_venn <- Venn(tmp_go_terms)
+go_venn <- Venn(tmp_go_terms)
 c3 = compute.Venn(go_venn,type="circles",doEuler = F,doWeights = F)
 gp = VennThemes(c3,colourAlgorithm = "signature")
 gp = venn_face_col(gp,cbpallete)
@@ -141,11 +145,11 @@ gp$SetText$Set3$col = "#000000"
 
 gp$SetText$Set1$fill = "#000000"
 
+c3@IndicatorWeight[,".Weight"] = comma(c3@IndicatorWeight[,".Weight"])
+
 svg("plots/svg/go_disc_venn.svg",width = 5,height = 5)
-plot(c3,gpList =gp,  show = list(FaceText = "weight", SetLabels = T, Faces = T))
+plot(c3,gpList =gp,  show = list(FaceText = "weight", SetLabels = F, Faces = T))
 dev.off()
-
-
 
 
 

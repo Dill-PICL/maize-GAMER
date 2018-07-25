@@ -53,17 +53,19 @@ get_ns2go = function(go_obo){
     return(ns2id)
 }
 
-plot_go_graph = function(gene,go_term,dot_file){
+plot_go_graph = function(gene,go_term,dot_file,color){
     print(go_term)
     ns = unique(unlist(go_obo$namespace[go_term]))
     rel_colors = list(is_a="blue",part_of="red")
     cat("digraph G{\n",file = dot_file)
     cat("rankdir = BT\n",file = dot_file,append=T)
-    cat('node[shape=box]\n',file = dot_file,append=T)
+    cat('bgcolor = "transparent"\n',file = dot_file,append=T)
+    node_txt = paste('node[shape=box,style=filled,fontcolor="black",','fillcolor="',color,'"]\n',sep="")
+    cat(node_txt,file = dot_file,append=T)
     #term_ans = go_obo$ancestors[[go_term]]
     term_ans = unique(unlist(go_obo$ancestors[go_term]))
     null_node = lapply(term_ans,function(x){
-        tmp_node = paste("\"",x,"\"","[label=\"",x,"\n",go_obo$name[[x]],"\"]\n",sep="")
+        tmp_node = paste("\"",x,"\"","[label=\"",x,"\\n",go_obo$name[[x]],"\"]\n",sep="")
         cat(tmp_node,file = dot_file,append = T)
     })
     
@@ -74,7 +76,8 @@ plot_go_graph = function(gene,go_term,dot_file){
             tmp_dt = cbind(child=x,parent=tmp_rel,rel="is_a")
         }
         
-        if(sum(ns == "cellular_component")){
+        if(T){
+        #if(sum(ns == "cellular_component" )){
             tmp_part = go_obo$part_of[[x]]
             if(length(tmp_part)>0){
                 tmp_part_dt = cbind(child=x,parent=tmp_part,rel="part_of")
@@ -93,14 +96,74 @@ plot_go_graph = function(gene,go_term,dot_file){
     cat("\n}",file = dot_file,append = T)
 }
 
-plot_go_overlap = function(gene,gold_terms,tool_terms,dot_file){
+plot_go_invis = function(gene,go_term,invis_term,dot_file,color){
     print(go_term)
     ns = unique(unlist(go_obo$namespace[go_term]))
-    print(ns)
     #rel_colors = list(is_a="blue",part_of="red")
     rel_colors = list(is_a="black",part_of="black")
     cat("digraph G{\n",file = dot_file)
+    cat("rankdir = BT\n",file = dot_file,append=T)
+    cat('bgcolor = "transparent"\n',file = dot_file,append=T)
+    node_txt = paste('node[shape=box,style=filled,color="transparent",fontcolor="black",','fillcolor="',color,'"]\n',sep="")
+    cat(node_txt,file = dot_file,append=T)
+    #term_ans = go_obo$ancestors[[go_term]]
+    term_ans = unique(unlist(go_obo$ancestors[go_term]))
+    invis_ans = unique(unlist(go_obo$ancestors[invis_term]))
+    all_ans=union(term_ans,invis_ans)
+    only_invis=setdiff(invis_ans,term_ans)
+    print(all_ans)
+    print(term_ans)
+    
+    null_node = lapply(term_ans,function(x){
+        tmp_node = paste("\"",x,"\"","[label=\"",x,"\\n",go_obo$name[[x]],"\"]\n",sep="")
+        cat(tmp_node,file = dot_file,append = T)
+    })
+    null_node = lapply(only_invis,function(x){
+        tmp_node = paste("\"",x,"\"","[label=\"",x,"\\n",go_obo$name[[x]],'",style="invis"]\n',sep="")
+        cat(tmp_node,file = dot_file,append = T)
+    })
+    
+    rel_list = lapply(all_ans,function(x){
+        tmp_rel = go_obo$is_a[[x]]
+        tmp_dt = NULL
+        if(length(tmp_rel)>0){
+            tmp_dt = cbind(child=x,parent=tmp_rel,rel="is_a")
+        }
+        
+        if(T){
+            #if(sum(ns == "cellular_component" )){
+            tmp_part = go_obo$part_of[[x]]
+            if(length(tmp_part)>0){
+                tmp_part_dt = cbind(child=x,parent=tmp_part,rel="part_of")
+                tmp_dt = rbind(tmp_dt,tmp_part_dt)
+            }
+        }
+        tmp_dt
+    })
+    
+    rel_dt = data.table(do.call(rbind,rel_list))
+    
+    null_rel = apply(rel_dt[child %in% term_ans],1,function(x){
+        cat(sprintf('"%s" -> "%s" [color="%s"]\n',x["child"],x["parent"],rel_colors[[x["rel"]]]),file = dot_file,append=T)
+    })
+    null_rel = apply(rel_dt[child %in% only_invis],1,function(x){
+        cat(sprintf('"%s" -> "%s" [color="%s",style="invis"]\n',x["child"],x["parent"],rel_colors[[x["rel"]]]),file = dot_file,append=T)
+    })
+    
+    cat("\n}",file = dot_file,append = T)
+}
+
+plot_go_overlap = function(gene,gold_terms,tool_terms,dot_file){
+    #print(go_term)
+    ns = unique(unlist(go_obo$namespace[gold_terms]))
+    print(ns)
+    #rel_colors = list(is_a="blue",part_of="red")
+    rel_colors = list(is_a="black",part_of="black")
+    node_colors= list(tool="#8da0cb",overlap="#66c2a5",gold="#fc8d62")
+    cat("digraph G{\n",file = dot_file)
     cat("\trankdir = BT\n",file = dot_file,append=T)
+    cat('bgcolor = "transparent"\n',file = dot_file,append=T)
+    # cat("\tranksep = 2\n",file = dot_file,append=T)
     cat('\tnode[shape=box,style=filled]\n',file = dot_file,append=T)
     
     #term_ans = go_obo$ancestors[[go_term]]
@@ -116,23 +179,25 @@ plot_go_overlap = function(gene,gold_terms,tool_terms,dot_file){
     #cat("\tsubgraph cluster_overlap{\n",file = dot_file,append=T)
     #cat('\t\tnode[style=filled,color="#b3e2cd"]\n',file = dot_file,append=T)
     null_node = lapply(overlap,function(x){
-        print_dot_node(x,go_obo,dot_file,color="#b3e2cd")
+        print_dot_node(x,go_obo,dot_file,color=node_colors$overlap)
     })
     #cat("\t}",file = dot_file,append=T)
     
     #cat("\tsubgraph cluster_tool_uniq{\n",file = dot_file,append=T)
     #cat('\t\tnode[style=filled,color="#fdcdac"]\n',file = dot_file,append=T)
     null_node = lapply(tool_uniq,function(x){
-        print_dot_node(x,go_obo,dot_file,color="#fdcdac")
+        print_dot_node(x,go_obo,dot_file,color=node_colors$tool)
     })
     #cat("\t}\n",file = dot_file,append=T)
     
     #cat("\tsubgraph cluster_gold_uniq{\n",file = dot_file,append=T)
     #cat('\tnode[style=filled,color="#cbd5e8"]\n',file = dot_file,append=T)
     null_node = lapply(gold_uniq,function(x){
-        print_dot_node(x,go_obo,dot_file,color="#cbd5e8")
+        print_dot_node(x,go_obo,dot_file,color=node_colors$gold)
     })
     #cat("\t}",file = dot_file,append=T)
+    
+    cat("\n\n\t#Edges \n",file = dot_file,append = T)
     
     rel_list = lapply(all_nodes,function(x){
         tmp_rel = go_obo$is_a[[x]]
@@ -156,7 +221,7 @@ plot_go_overlap = function(gene,gold_terms,tool_terms,dot_file){
     rel_dt = data.table(do.call(rbind,rel_list))
     
     null_rel = apply(rel_dt,1,function(x){
-        cat(sprintf('"%s" -> "%s" [color="%s"]\n',x["child"],x["parent"],rel_colors[[x["rel"]]]),file = dot_file,append=T)
+        cat(sprintf('\t"%s" -> "%s" [color="%s"]\n',x["child"],x["parent"],rel_colors[[x["rel"]]]),file = dot_file,append=T)
     })
     
     cat("\n}",file = dot_file,append = T)
@@ -164,7 +229,7 @@ plot_go_overlap = function(gene,gold_terms,tool_terms,dot_file){
 }
 
 print_dot_node = function(node,go_obo,dot_file,color="#fdcdac"){
-    tmp_node = paste("\t\t\"",node,"\"","[label=<",node," <br/> ",go_obo$name[[node]],'>,color="',color,'"]\n',sep="")
+    tmp_node = paste("\t\"",node,"\"","[label=<",node," <br/> ",go_obo$name[[node]],'>,color="',color,'"]\n',sep="")
     cat(tmp_node,file = dot_file,append = T)
 }
 
@@ -186,12 +251,13 @@ plot_go_illus = function(gene,ns,gold_terms,tool_term,dot_file,title){
     
     #rel_colors = list(is_a="blue",part_of="red")
     rel_colors = list(is_a="black",part_of="black")
+    node_colors= list(tool="#7570b3",overlap="#1b9e77",gold="#d95f02")
     cat("digraph G{\n",file = dot_file)
     cat("\ttype = fdp\n",file = dot_file,append=T)
     cat("\trankdir = BT\n",file = dot_file,append=T)
     cat("\tranksep = 0.1\n",file = dot_file,append=T)
     cat('\tlabel=""\n',file = dot_file,append=T)
-    cat('\tnode[shape=circle,style=filled]\n',file = dot_file,append=T)
+    cat('\tnode[shape=circle,style=filled,fontsize=18,fontname="arial bold"]\n',file = dot_file,append=T)
     #term_ans = go_obo$ancestors[[go_term]]
     gold_ans = unique(unlist(go_obo$ancestors[gold_terms]))
     term_ans = unique(unlist(go_obo$ancestors[tool_term]))
@@ -206,12 +272,12 @@ plot_go_illus = function(gene,ns,gold_terms,tool_term,dot_file,title){
     #cat('\t\tnode[style=filled,color="#b3e2cd"]\n',file = dot_file,append=T)
     null_node = lapply(overlap,function(x){
         if(x %in% tool_term | x %in% gold_terms){
-            leaf = "DG*"    
+            leaf = "*"    
         }else{
-            leaf = "DG"
+            leaf = ""
         }
         
-        print_metric_node(x,go_obo,dot_file,color="#b3e2cd",leaf)
+        print_metric_node(x,go_obo,dot_file,color=node_colors$overlap,leaf)
     })
     #cat("\t}",file = dot_file,append=T)
     
@@ -219,13 +285,13 @@ plot_go_illus = function(gene,ns,gold_terms,tool_term,dot_file,title){
     #cat('\t\tnode[style=filled,color="#fdcdac"]\n',file = dot_file,append=T)
     null_node = lapply(tool_uniq,function(x){
         if(x %in% tool_term){
-            leaf = "D*"
+            leaf = "*"
             
         }else{
-            leaf = "D"
+            leaf = ""
         }
         
-        print_metric_node(x,go_obo,dot_file,color="#cbd5e8",leaf)
+        print_metric_node(x,go_obo,dot_file,color=node_colors$tool,leaf)
     })
     #cat("\t}\n",file = dot_file,append=T)
     
@@ -233,12 +299,12 @@ plot_go_illus = function(gene,ns,gold_terms,tool_term,dot_file,title){
     #cat('\tnode[style=filled,color="#cbd5e8"]\n',file = dot_file,append=T)
     null_node = lapply(gold_uniq,function(x){
         if(x %in% gold_terms){
-            leaf = "G*"
+            leaf = "*"
         }else{
-            leaf = "G"    
+            leaf = ""    
         }
         
-        print_metric_node(x,go_obo,dot_file,color="#fdcdac",leaf)
+        print_metric_node(x,go_obo,dot_file,color=node_colors$gold,leaf)
     })
     #cat("\t}",file = dot_file,append=T)
     

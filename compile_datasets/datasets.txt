@@ -1,7 +1,8 @@
-Type	dataset	file
-Seq-Simlarity	TAIR	maize_v3.tair.hc.gaf
-Seq-Simlarity	UniProt	maize_v3.uniprot.gaf
-Domain	InterProScan	maize_v3.iprs.gaf
-Mix-Method	Argot2	maize_v3.argot2.gaf
-Mix-Method	FANN-GO	maize_v3.fanngo.gaf
-Mix-Method	PANNZER	maize_v3.pannzer.gaf
+Type	dataset	file	color
+Seq-Simlarity	TAIR	maize_v3.tair.hc.gaf	#FFF2CC
+Seq-Simlarity	UniProt	maize_v3.uniprot_plants.gaf	#FFF2CC
+Domain	InterProScan	maize_v3.iprs.gaf	#DEEBF7
+Mix-Method	Argot2	maize_v3.argot2.gaf	#E2F0D9
+Mix-Method	FANN-GO	maize_v3.fanngo.gaf	#E2F0D9
+Mix-Method	PANNZER	maize_v3.pannzer.gaf	#E2F0D9
+

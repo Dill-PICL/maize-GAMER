@@ -5,5 +5,5 @@ This is the repository of scripts used to generate the maize-GAMER dataset for m
 ## Disclaimer
 This is poor code which has not been commented or cleaned. These scripts are provided as is without any warranty. Use it at your own peril.
 
-## Future Steps
-The scripts are currently being cleaned and converted into the stable GO-MAP pipeline. First version of the pipeline will be released soon.
+## GOMAP
+The clean and refactored maize-GAMER code is available now as [GOMAP](https://github.com/Dill-PICL/GOMAP) and a containerized version of GOMAP is available as [GOMAP-singularity](https://github.com/Dill-PICL/GOMAP-singularity)

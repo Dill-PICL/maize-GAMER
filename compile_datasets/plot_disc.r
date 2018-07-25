@@ -69,40 +69,41 @@ tmp_meas
 
 plot_data = rbind(tmp_annots,tmp_eval,tmp_meas)
 plot_data = merge(plot_data,all_datasets[,-3,with=F],by.x="tool",by.y="dataset")
-plot_data
-data_order
 plot_data$tool = factor(plot_data$tool,levels=data_order)
-plot_data$measure = factor(plot_data$measure, levels=c("coverage","num_annots","avg_fscore"))
-plot_data
+plot_data$measure = factor(plot_data$measure, levels=c("coverage","num_annots","avg_fscore"),labels = c(bquote(Coverage ~("%")),bquote("#" ~ of ~ Annotations),"hF[1]"))
+plot_data$aspect = factor(plot_data$aspect, levels=c("C","F","P"), labels=c("Cellular~Component","Biological~Process","Molecular~Function"))
 
-measures = list("Coverage (%)","# of Annotations","Avg Fscore")
-names(measures) = c("coverage","num_annots","avg_fscore")
+plot_data[Type=="Aggregate",Type:="maize-GAMER"]
+plot_data[tool=="Aggregate",tool := "maize-GAMER"]
 
-meas_name = function(x){return(measures[x])}
-
-tmp = lapply(unique(plot_data$measure),function(x){
-    outfile=gsub(" ","",x)
-    plot_disc(plot_data,x,outfile)
-})
-plot_data[Type=="Aggregate"]$Type = "maize-GAMER"
-plot_data[tool=="Aggregate"]$tool = "maize-GAMER"
-
-
+# measures = list("Coverage (%)","# of Annotations","hF[1]")
+# names(measures) = c("coverage","num_annots","avg_fscore")
+# 
+# meas_name = function(meas){
+#     lapply(meas,function(x){
+#         print(parse(text=measures[x]))    
+#     })
+#     return(measures[meas])
+# }
 
 #cbpallete = c("#377eb8","#4daf4a","#e41a1c")
 cbpallete = c("#1b9e77","#d95f02", "#fdcdac","#e7298a")
 
 p = ggplot(plot_data,aes(x=tool,y=value,fill=tool))
 p = p + geom_bar(stat="identity",size=0.5,color="#000000")
-p = p + xlab("Dataset") + scale_y_continuous(labels = format_annots)
-p = p + scale_fill_manual(values=cbpallete) + theme_bw()
-p = p + facet_grid(measure~aspect,scales = "free_y",labeller = labeller(aspect=aspect_lbl,measure=meas_name),switch = "y")
-p = p + theme(axis.text.x = element_text(angle = 30,hjust = 1,vjust = 1),axis.title.y = element_blank(),legend.position = "bottom",legend.title = element_blank())
-print(p)
+p = p + xlab("Dataset") 
+# p = p + scale_y_continuous(labels = format_annots)
+p = p + scale_fill_manual(values=cbpallete) + theme_bw(base_size = 18) + scale_y_continuous(labels=comma)
+# p = p + theme(axis.text.x = element_text(angle = 20,hjust = 1,vjust = 1),axis.title.y = element_blank(),legend.position = "bottom",legend.title = element_blank())
+p = p + theme(axis.text.x = element_blank(),axis.title.y = element_blank(),legend.position = "bottom",legend.title = element_blank())
+p = p + facet_grid(measure~aspect,scales = "free_y",labeller=label_parsed,switch = "y")
+p
+
+# print(p)
 
 ppt_f = paste("plots/ppt/results-exist.png",sep="")
-poster_f = paste("plots/results-exist.png",sep="")
-ggsave(ppt_f,width = 6,height=7,dpi=300,units = "in")
-ggsave(poster_f,width = 6,height=7,dpi=300,units = "in")
+poster_f = paste("plots/png/results-exist.png",sep="")
+ggsave(ppt_f,width = 8,height=8,dpi=300,units = "in")
+ggsave(poster_f, width = 9,height=8,dpi=300,units = "in")
 
 write.table(dcast(plot_data,measure+tool~aspect,value.var = "value"),"tables/disc_plot_data.csv",row.names = F,sep = "\t")

@@ -4,12 +4,36 @@ library("reshape2")
 library("tools")
 
 read_gaf = function(infile){
+    gaf_cols = c("db",
+                 "db_object_id",
+                 "db_object_symbol",
+                 "qualifier",
+                 "term_accession",
+                 "db_reference",
+                 "evidence_code",
+                 "with",
+                 "aspect",
+                 "db_object_name",
+                 "db_object_synonym",
+                 "db_object_type",
+                 "taxon",
+                 "date",
+                 "assigned_by",
+                 "annotation_extension",
+                 "gene_product_form_id")
+    
     if(!file.exists(infile)){
         warning("The file does not exist")
         break
     }
-    curr_gaf = fread(infile,skip = 1)
-    colnames(curr_gaf) = gsub("!","",colnames(curr_gaf))
+    in_lines = readLines(infile,n=25)
+    comments = grep("^!",in_lines)
+    if(length(comments)==0){
+        comments=0    
+    }
+    
+    curr_gaf = fread(infile,skip = max(comments))
+    colnames(curr_gaf) = gaf_cols
     curr_gaf[is.na(curr_gaf)] = ""
     return(curr_gaf)
 }
@@ -19,7 +43,7 @@ read_gaf_header = function(infile){
         warning("The file does not exist")
         break
     }
-    curr_gaf = fread(infile,skip = 1,nrows = 10)
+    curr_gaf = fread(infile,skip = 1,nrows = 25)
     colnames(curr_gaf) = gsub("!","",colnames(curr_gaf))
     return(colnames(curr_gaf))
 }

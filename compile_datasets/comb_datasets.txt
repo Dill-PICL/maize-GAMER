@@ -1,2 +1,2 @@
-Type	dataset	file
-Aggregate	Aggregate	maize_v3.agg.gaf
+Type	dataset	file	color
+Aggregate	Aggregate	maize_v3.agg.gaf	"#fdcdac"
